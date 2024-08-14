@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotEmpty;
 public class Board extends BaseEntity {
     @Column(length = 50, nullable = false)
     @NotEmpty(message = "제목을 입력해주세요.")
-    private Long title;
+    private String title;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
