@@ -3,7 +3,11 @@ package board.board_spring.domain.board.entity;
 import board.board_spring.domain.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
+import lombok.Getter;
 
+@Builder
+@Getter
 @Entity()
 public class Board extends BaseEntity {
     @Column(length = 50, nullable = false)
