@@ -3,9 +3,11 @@ package board.board_spring.domain.board.entity;
 import board.board_spring.domain.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Builder
 @Getter
 @Entity()
