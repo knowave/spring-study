@@ -40,4 +40,8 @@ public class BaseEntity {
     protected void onDeleted() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
