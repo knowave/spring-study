@@ -19,7 +19,7 @@ public class BoardController {
         return ResponseEntity.ok().body("create board success!");
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("")
     public ResponseEntity<Board> getBoardById(@RequestParam Long id) {
         Board board = boardService.getBoardById(id);
         return ResponseEntity.ok().body(board);
