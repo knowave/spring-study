@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -84,5 +85,55 @@ public class BoardServiceTest {
         });
 
         verify(boardRepository, times(1)).findById(boardId);
+    }
+
+    @Test
+    @DisplayName("게시글 수정 - 성공")
+    public void testUpdateBoardSuccess() {
+        // Given
+        Long boardId = 1L;
+        BoardDto boardDto = BoardDto.builder()
+                .title("test title")
+                .content("test content")
+                .build();
+        Board board = Board.builder()
+                .title("exist title")
+                .content("exist content")
+                .build();
+        board.setId(boardId);
+
+        when(boardRepository.findById(boardId)).thenReturn(Optional.of(board));
+        when(boardRepository.save(any(Board.class))).thenReturn(board);
+
+        // When
+        Board updatedBoard = boardService.updateBoard(boardId, boardDto);
+
+        // Then
+        verify(boardRepository, times(1)).findById(boardId);
+        verify(boardRepository, times(1)).save(board);
+
+        assertEquals(boardDto.getTitle(), updatedBoard.getTitle());
+        assertEquals(boardDto.getContent(), updatedBoard.getContent());
+    }
+
+    @Test
+    @DisplayName("게시글 업데이트 - 실패 (존재하지 않는 ID)")
+    public void testUpdateBoardFailure() {
+        // Given
+        Long boardId = 1L;
+        BoardDto boardDto = BoardDto.builder()
+                .title("updated title")
+                .content("updated content")
+                .build();
+
+        when(boardRepository.findById(boardId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(CustomException.class, () -> {
+            boardService.updateBoard(boardId, boardDto);
+        });
+
+        verify(boardRepository, times(1)).findById(boardId);
+        verify(boardRepository, times(0)).save(any(Board.class));
     }
 }
