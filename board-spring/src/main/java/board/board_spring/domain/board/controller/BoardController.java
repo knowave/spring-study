@@ -24,4 +24,10 @@ public class BoardController {
         Board board = boardService.getBoardById(id);
         return ResponseEntity.ok().body(board);
     }
+
+    @PutMapping("")
+    public ResponseEntity<Board> updateBoard(@RequestParam Long id, @RequestBody BoardDto boardDto) {
+        Board board = boardService.updateBoard(id, boardDto);
+        return ResponseEntity.ok(board);
+    }
 }

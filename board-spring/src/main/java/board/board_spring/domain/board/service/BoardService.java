@@ -21,4 +21,13 @@ public class BoardService {
         Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException("Not Found Board", HttpStatus.NOT_FOUND));
         return board;
     }
+
+    public Board updateBoard(Long id, BoardDto boardDto) {
+        Board board = this.getBoardById(id);
+
+        board.setTitle(boardDto.getTitle());
+        board.setContent(boardDto.getContent());
+
+        return boardRepository.save(board);
+    }
 }
