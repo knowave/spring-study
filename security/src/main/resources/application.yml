@@ -15,7 +15,9 @@ spring:
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
+      # ddl-auto를 처음에 create로 테이블을 생성했다면 추후에는 none으로 바꿔줘야한다.
+      # 그 이유는 테이블 생성을 위해 해당 테이블들을 다시 삭제하고 재생성하는 이슈가 발생한다.
 
 jwt:
   header: Authorization
