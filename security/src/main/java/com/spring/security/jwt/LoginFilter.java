@@ -22,10 +22,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
         // 로그인 시 클라이언트 요청에서 email, password 추출
-        String email = obtainUsername(request);
-        String password = obtainPassword(request);
-
-        System.out.println(email);
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
 
         // Spring Security에서 email과 password를 검증하기 위해서 token에 담아야 함.
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
@@ -38,9 +36,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
-
+        System.out.println("Success");
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {}
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+
+        System.out.println("Fail");
+    }
 }
