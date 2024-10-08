@@ -1,50 +1,52 @@
-//package com.spring.security.jwt;
-//
-//import io.jsonwebtoken.*;
-//import io.jsonwebtoken.io.Decoders;
-//import io.jsonwebtoken.security.Keys;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.stereotype.Component;
-//
-//import javax.crypto.SecretKey;
-//import java.util.Date;
-//
-//@Slf4j
-//@Component
-//public class JwtProvider {
-//
-//    private final SecretKey key;
-//
-//    @Value("${jwt.token-validity}")
-//    private long tokenValidity;
-//
-//    public JwtProvider(@Value("${jwt.secret}") String secret) {
-//        byte[] keyBytes = Decoders.BASE64.decode(secret);
-//        this.key = Keys.hmacShaKeyFor(keyBytes);
-//    }
-//
-//    public String generateToken(String username) {
-//        return Jwts.builder()
-//                .setSubject(username)
-//                .setIssuedAt(new Date())
-//                .setExpiration(new Date(System.currentTimeMillis() + tokenValidity))
-//                .signWith(key, SignatureAlgorithm.HS512)
-//                .compact();
-//    }
-//
-//    public String getUsernameFromToken(String token) {
-//        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-//        return claims.getSubject();
-//    }
-//
-//    public boolean validateToken(String token) {
-//        try {
-//            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-//            return true;
-//        } catch (JwtException | IllegalArgumentException e) {
-//            log.error("Invalid JWT token.");
-//        }
-//        return false;
-//    }
-//}
+package com.spring.security.jwt;
+
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+// Java Spring에게 Component class라고 등록.
+@Component
+public class JwtProvider {
+
+    private SecretKey secretKey;
+
+    private JwtProvider(@Value("%{secret}") String secret) {
+
+        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    }
+
+    // Email 검증
+    public String getEmail(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
+    }
+
+    // Role 검증
+    public String getRole(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+    }
+
+    // Token 만료 여부
+    public Boolean isExpired(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+    }
+
+    // Token 생성
+    public String createJwt(String email, String role, Long expiredMs) {
+
+        return Jwts.builder()
+                .claim("email", email)
+                .claim("role", role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
+                .compact();
+    }
+}
