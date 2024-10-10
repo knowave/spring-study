@@ -15,7 +15,7 @@ public class JwtProvider {
 
     private SecretKey secretKey;
 
-    private JwtProvider(@Value("%{secret}") String secret) {
+    private JwtProvider(@Value("${jwt.secret}") String secret) {
 
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
