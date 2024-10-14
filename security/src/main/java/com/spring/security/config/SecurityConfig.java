@@ -1,5 +1,6 @@
 package com.spring.security.config;
 
+import com.spring.security.jwt.JwtFilter;
 import com.spring.security.jwt.JwtProvider;
 import com.spring.security.jwt.LoginFilter;
 import org.springframework.context.annotation.Bean;
@@ -58,6 +59,10 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/", "/join").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
+
+        // JWT Filter 등록
+        http
+                .addFilterBefore(new JwtFilter(jwtProvider), LoginFilter.class);
 
         // login filter 등록
         http

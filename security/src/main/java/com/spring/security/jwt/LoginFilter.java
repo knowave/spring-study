@@ -53,9 +53,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throw new AuthenticationServiceException("Request parsing failed", e);
         }
 
-        System.out.println("Email: " + email);
-        System.out.println("Password: " + password);
-
         // Spring Security에서 email과 password를 검증하기 위해 token에 담아야 함.
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
