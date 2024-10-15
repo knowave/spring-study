@@ -14,10 +14,12 @@ import java.util.Date;
 public class JwtProvider {
 
     private SecretKey secretKey;
+    private Long expirationMs;
 
-    private JwtProvider(@Value("${jwt.secret}") String secret) {
+    private JwtProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.access-token-expiration}") Long expirationMs) {
 
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.expirationMs = expirationMs;
     }
 
     // Email 검증
@@ -39,13 +41,13 @@ public class JwtProvider {
     }
 
     // Token 생성
-    public String createJwt(String email, String role, Long expiredMs) {
+    public String createJwt(String email, String role) {
 
         return Jwts.builder()
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(secretKey)
                 .compact();
     }
