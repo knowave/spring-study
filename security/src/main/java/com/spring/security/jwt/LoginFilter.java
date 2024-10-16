@@ -3,6 +3,7 @@ package com.spring.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.security.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -76,14 +77,28 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtProvider.createJwt(email, role);
+        String accessToken = jwtProvider.createAccessToken("accessToken", email, role);
+        String refreshToken = jwtProvider.createRefreshToken("refreshToken", email, role);
 
-        response.addHeader("Authorization", "Bearer " + token);
+        response.setHeader("accessToken", accessToken);
+        response.addCookie(createCookie("refreshToken", refreshToken));
+        response.addHeader("Authorization", "Bearer " + accessToken);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
 
         response.setStatus(401);
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }

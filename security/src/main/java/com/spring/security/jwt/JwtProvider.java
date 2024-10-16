@@ -43,9 +43,10 @@ public class JwtProvider {
     }
 
     // Access Token 생성
-    public String createJwt(String email, String role) {
+    public String createAccessToken(String category, String email, String role) {
 
         return Jwts.builder()
+                .claim("category", category)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -55,13 +56,19 @@ public class JwtProvider {
     }
 
     // Refresh Token 생성
-    public String createRefreshToken(String email, String role) {
+    public String createRefreshToken(String category, String email, String role) {
         return Jwts.builder()
+                .claim("category", category)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public String getCategory(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
     }
 }
