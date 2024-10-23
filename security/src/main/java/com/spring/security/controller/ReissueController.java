@@ -66,10 +66,23 @@ public class ReissueController {
 
         // make new jwt
         String newAccessToken = jwtProvider.createAccessToken(category, email, role);
+        String newRefreshToken = jwtProvider.createRefreshToken(category, email, role);
 
         // response
         response.setHeader("access", newAccessToken);
+        response.addCookie(createCookie("refresh", newRefreshToken));
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }
