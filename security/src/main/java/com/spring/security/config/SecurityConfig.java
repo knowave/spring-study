@@ -5,6 +5,7 @@ import com.spring.security.jwt.JwtProvider;
 import com.spring.security.jwt.LoginFilter;
 import com.spring.security.repository.RefreshRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +34,8 @@ public class SecurityConfig {
     private final Long accessTokenExpirationMs;
     private final Long refreshTokenExpirationMs;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtProvider jwtProvider, RefreshRepository refreshRepository,  @Value("${jwt.access-token-expiration}") Long accessTokenExpirationMs, @Value("${jwt.refresh-token-expiration}") Long refreshTokenExpirationMs) {
+    @Autowired
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtProvider jwtProvider, RefreshRepository refreshRepository, Long accessTokenExpirationMs, Long refreshTokenExpirationMs) {
 
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtProvider = jwtProvider;
