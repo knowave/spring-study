@@ -2,10 +2,13 @@ package com.spring.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.security.dto.CustomUserDetails;
+import com.spring.security.entity.Refresh;
+import com.spring.security.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -23,11 +27,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final RefreshRepository refreshRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtProvider jwtProvider) {
+    @Value("${jwt.access-token-expiration}")
+    private final Long accessTokenExpirationMs;
+
+    @Value("${jwt.refresh-token-expiration}")
+    private final Long refreshTokenExpirationMs;
+
+    public LoginFilter(AuthenticationManager authenticationManager, JwtProvider jwtProvider, RefreshRepository refreshRepository, Long accessTokenExpirationMs, Long refreshTokenExpirationMs) {
 
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
+        this.refreshRepository = refreshRepository;
+        this.accessTokenExpirationMs = accessTokenExpirationMs;
+        this.refreshTokenExpirationMs = refreshTokenExpirationMs;
+
         setFilterProcessesUrl("/login");
     }
 
@@ -77,8 +92,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String accessToken = jwtProvider.createAccessToken("accessToken", email, role);
-        String refreshToken = jwtProvider.createRefreshToken("refreshToken", email, role);
+//        String accessToken = jwtProvider.createAccessToken("accessToken", email, role);
+//        String refreshToken = jwtProvider.createRefreshToken("refreshToken", email, role);
+
+        String accessToken = jwtProvider.createToken("accessToken", email, role, accessTokenExpirationMs);
+        String refreshToken = jwtProvider.createToken("refreshToken", email, role, refreshTokenExpirationMs);
+
+        createRefresh(email, refreshToken, refreshTokenExpirationMs);
 
         response.setHeader("accessToken", accessToken);
         response.addCookie(createCookie("refreshToken", refreshToken));
@@ -100,5 +120,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         cookie.setHttpOnly(true);
 
         return cookie;
+    }
+
+    private void createRefresh(String email, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        Refresh refreshEntity = Refresh.builder()
+                .email(email)
+                .refresh(refresh)
+                .expiration(date.toString())
+                .build();
+
+        refreshRepository.save(refreshEntity);
     }
 }

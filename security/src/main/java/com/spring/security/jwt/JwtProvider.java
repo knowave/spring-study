@@ -43,29 +43,41 @@ public class JwtProvider {
     }
 
     // Access Token 생성
-    public String createAccessToken(String category, String email, String role) {
+//    public String createAccessToken(String category, String email, String role) {
+//
+//        return Jwts.builder()
+//                .claim("category", category)
+//                .claim("email", email)
+//                .claim("role", role)
+//                .issuedAt(new Date(System.currentTimeMillis()))
+//                .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
+//                .signWith(secretKey)
+//                .compact();
+//    }
+
+    public String createToken(String category, String email, String role, Long expiredMs) {
 
         return Jwts.builder()
                 .claim("category", category)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)
                 .compact();
     }
 
     // Refresh Token 생성
-    public String createRefreshToken(String category, String email, String role) {
-        return Jwts.builder()
-                .claim("category", category)
-                .claim("email", email)
-                .claim("role", role)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
-                .signWith(secretKey)
-                .compact();
-    }
+//    public String createRefreshToken(String category, String email, String role) {
+//        return Jwts.builder()
+//                .claim("category", category)
+//                .claim("email", email)
+//                .claim("role", role)
+//                .issuedAt(new Date(System.currentTimeMillis()))
+//                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
+//                .signWith(secretKey)
+//                .compact();
+//    }
 
     public String getCategory(String token) {
 

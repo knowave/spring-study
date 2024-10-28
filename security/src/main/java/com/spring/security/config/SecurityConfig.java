@@ -3,7 +3,9 @@ package com.spring.security.config;
 import com.spring.security.jwt.JwtFilter;
 import com.spring.security.jwt.JwtProvider;
 import com.spring.security.jwt.LoginFilter;
+import com.spring.security.repository.RefreshRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,11 +28,18 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtProvider jwtProvider;
+    private final RefreshRepository refreshRepository;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtProvider jwtProvider) {
+    private final Long accessTokenExpirationMs;
+    private final Long refreshTokenExpirationMs;
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtProvider jwtProvider, RefreshRepository refreshRepository,  @Value("${jwt.access-token-expiration}") Long accessTokenExpirationMs, @Value("${jwt.refresh-token-expiration}") Long refreshTokenExpirationMs) {
 
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtProvider = jwtProvider;
+        this.refreshRepository = refreshRepository;
+        this.accessTokenExpirationMs = accessTokenExpirationMs;
+        this.refreshTokenExpirationMs = refreshTokenExpirationMs;
     }
 
     @Bean
@@ -77,7 +86,7 @@ public class SecurityConfig {
 
         // login filter 등록
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtProvider, refreshRepository, accessTokenExpirationMs, refreshTokenExpirationMs), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정 (JWT 방식에서는 Session을 statusLess로 관리함)
         http

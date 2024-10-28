@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User {
 
-    @Id()
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // IDENTITY 설정을 해야 ID 값들이 중복으로 생성되지 않음.
     private int id;
 
